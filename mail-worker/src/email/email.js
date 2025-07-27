@@ -11,6 +11,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import roleService from '../service/role-service';
+import userService from '../service/user-service';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -47,7 +48,8 @@ export async function email(message, env, ctx) {
 
 		const email = await PostalMime.parse(content);
 
-		const account = await accountService.selectByEmailIncludeDelNoCase({ env: env }, message.to);
+		const user = await userService.selectSuffix({ env: env }, message.to);
+		const account = await accountService.selectByEmailIncludeDel({ env: env }, user.email)
 
 		if (account && account.email !== env.admin) {
 

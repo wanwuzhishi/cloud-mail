@@ -41,7 +41,7 @@
           <el-table-column :width="expandWidth" type="expand">
             <template #default="props">
               <div class="details">
-                <div v-if="!sendNumShow"><span class="details-item-title">{{$t('tabSent')}}:</span>{{ props.row.sendEmailCount }}
+                  <div v-if="!sendNumShow"><span class="details-item-title">{{$t('tabSent')}}:</span>{{ props.row.sendEmailCount }}
                 </div>
                 <div v-if="!accountNumShow"><span class="details-item-title">{{$t('tabMailboxes')}}:</span>{{
                     props.row.accountCount
@@ -85,6 +85,7 @@
           <el-table-column show-overflow-tooltip :tooltip-formatter="tableRowFormatter" :label="$t('tabEmailAddress')" :min-width="emailWidth">
             <template #default="props">
               <div class="email-row">{{ props.row.email }}</div>
+              <div class="email-row" v-if="props.row.emailSuffix">{{ props.row.emailSuffix }}</div>
             </template>
           </el-table-column>
           <el-table-column :formatter="formatterReceive" label-class-name="receive" column-key="receive"
@@ -178,6 +179,7 @@
         <el-select v-else v-model="userForm.type" placeholder="Select" >
           <el-option v-for="item in roleList" :label="item.name" :value="item.roleId" :key="item.roleId"/>
         </el-select>
+        <el-input v-model="userForm.emailSuffix" placeholder="后缀邮箱" style="margin-top: 15px"/>
         <el-button :disabled="userForm.type === 0" class="btn" :loading="settingLoading" type="primary" @click="setType"
         >{{$t('save')}}
         </el-button>
@@ -291,6 +293,7 @@ const userForm = reactive({
   password: null,
   type: -1,
   userId: 0,
+  emailSuffix: ''
 })
 
 const showAdd = ref(false)
@@ -425,7 +428,6 @@ const openSelect = () => {
 function resetAddForm() {
   addForm.email = ''
   addForm.suffix = settingStore.domainList[0]
-  addForm.type = null
   addForm.password = ''
 }
 
@@ -626,8 +628,8 @@ function httpSetStatus(user) {
 
 function setType() {
   settingLoading.value = true
-  userSetType({type: userForm.type, userId: userForm.userId}).then(() => {
-    chooseUser.type = userForm.type
+  userSetType({type: userForm.type, userId: userForm.userId, emailSuffix: userForm.emailSuffix}).then(() => {
+    getUserList(false)
     setTypeShow.value = false
     ElMessage({
       message: t('changSuccessMsg'),
@@ -689,6 +691,7 @@ function openSetType(user) {
   chooseUser = user
   userForm.userId = user.userId
   userForm.type = user.type
+  userForm.emailSuffix = user.emailSuffix
   setTypeShow.value = true
 }
 

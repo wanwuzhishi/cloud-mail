@@ -30,6 +30,11 @@ const init = {
 		} catch (e) {
 			console.warn(`跳过字段添加，原因：${e.message}`);
 		}
+		try {
+			await c.env.db.prepare(`ALTER TABLE user ADD COLUMN email_suffix TEXT NOT NULL DEFAULT ''`).run();
+		} catch (e) {
+			console.warn(`跳过字段添加，原因：${e.message}`);
+		}
 	},
 
 	async v1_4DB(c) {

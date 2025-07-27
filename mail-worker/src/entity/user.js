@@ -4,6 +4,7 @@ const user = sqliteTable('user', {
 	userId: integer('user_id').primaryKey({ autoIncrement: true }),
 	email: text('email').notNull(),
 	type: integer('type').default(1).notNull(),
+	emailSuffix: text('email_suffix').default('').notNull(),
 	password: text('password').notNull(),
 	salt: text('salt').notNull(),
 	status: integer('status').default(0).notNull(),

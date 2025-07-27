@@ -249,7 +249,7 @@ const zh = {
     supportDesc: '请我喝杯奶茶',
     featDesc: '功能说明',
     emailInterception: '邮件拦截',
-    emailInterceptionDesc: '拦截邮件, 要拦截整个域名输入 *@example.com, 可用于禁止用户接收某些网站的邮件',
+    emailInterceptionDesc: '拦截邮件, 要拦截整个域名输入 *＠example.com, 可用于禁止用户接收某些网站的邮件',
     availableDomains: '可用域名',
     availableDomainsDesc: '限制用户只能使用指定的域名邮箱，不在配置名单内的域名会被禁止使用注册添加邮箱，接收发送邮件等功能，留空默认允许可用所有域名',
     backgroundUrlDesc: '在线图片链接',

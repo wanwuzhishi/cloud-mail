@@ -291,7 +291,7 @@ const userService = {
 
 	async setType(c, params) {
 
-		const { type, userId } = params;
+		const { type, userId, emailSuffix } = params;
 
 		const roleRow = await roleService.selectById(c, type);
 
@@ -301,7 +301,7 @@ const userService = {
 
 		await orm(c)
 			.update(user)
-			.set({ type })
+			.set({ type, emailSuffix })
 			.where(eq(user.userId, userId))
 			.run();
 
@@ -392,7 +392,16 @@ const userService = {
 			.where(eq(user.regKeyId, regKeyId))
 			.orderBy(desc(user.userId))
 			.all();
+	},
+
+	selectSuffix(c, email) {
+		return c.env.db.prepare(`
+			SELECT * FROM user
+			WHERE ? LIKE CONCAT('%', email_suffix) COLLATE NOCASE
+			ORDER BY LENGTH(email_suffix) DESC
+			LIMIT 1;
+		`).bind(email).first();
 	}
-};
+}
 
 export default userService;
