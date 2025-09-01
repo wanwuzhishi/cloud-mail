@@ -18,8 +18,7 @@ export default defineConfig(({mode}) => {
         plugins: [vue(),
             VitePWA({
                 registerType: 'autoUpdate',
-
-                includeAssets: ['favicon.svg', 'robots.txt'],
+                includeAssets: ['mail.png', 'robots.txt'],
                 manifest: {
                     name: 'Cloud Mail',
                     short_name: 'Cloud Mail',
@@ -27,27 +26,10 @@ export default defineConfig(({mode}) => {
                     theme_color: '#FFFFFF',
                     icons: [
                         {
-                            src: 'mail-192.png',
+                            src: 'mail-pwa.png',
                             sizes: '192x192',
                             type: 'image/png',
-                        },
-                        {
-                            src: 'mail-512.png',
-                            sizes: '512x512',
-                            type: 'image/png'
-                        },
-                        {
-                            src: 'mail-512.png',
-                            sizes: '512x512',
-                            type: 'image/png',
-                            purpose: 'any'
-                        },
-                        {
-                            src: 'mail-512.png',
-                            sizes: '512x512',
-                            type: 'image/png',
-                            purpose: 'maskable'
-                        },
+                        }
                     ],
                 },
             }),

@@ -49,10 +49,10 @@
                       />
                     </el-tooltip>
                     <el-tooltip v-if="item.status ===  1" effect="dark" :content="$t('sent')">
-                      <Icon icon="bi:send-arrow-up-fill" style="color: #67C23A" width="20" height="20"/>
+                      <Icon icon="bi:send-arrow-up-fill" style="color: #51C76B" width="20" height="20"/>
                     </el-tooltip>
                     <el-tooltip v-if="item.status ===  2" effect="dark" :content="$t('delivered')">
-                      <Icon icon="bi:send-check-fill" style="color: #67C23A" width="20" height="20"/>
+                      <Icon icon="bi:send-check-fill" style="color: #51C76B" width="20" height="20"/>
                     </el-tooltip>
                     <el-tooltip v-if="item.status ===  3" effect="dark" :content="$t('bounced')">
                       <Icon icon="bi:send-x-fill" style="color: #F56C6C" width="20" height="20"/>
