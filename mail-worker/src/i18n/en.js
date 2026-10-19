@@ -80,7 +80,7 @@ const en = {
 		"邮箱删除": "Delete Email",
 		"个人设置": "Settings",
 		"用户注销": "Delete User",
-		"分析页": "Analytics",
+		"分析页": "Dashboard",
 		"数据查看": "View Data",
 		"用户信息": "All Users",
 		"用户查看": "View User",
