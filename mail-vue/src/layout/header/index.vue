@@ -1,5 +1,5 @@
 <template>
-  <div class="header" :class="{ 'not-send': !hasPerm('email:send') }">
+  <div class="header">
     <div class="header-btn">
       <hanburger @click="changeAside"></hanburger>
       <span class="breadcrumb-item">{{ $t(route.meta.title) }}</span>
@@ -396,12 +396,8 @@ onBeforeUnmount(() => {
   display: grid;
   height: 100%;
   gap: 10px;
-  grid-template-columns: auto auto 1fr;
-  position: relative;
-}
-
-.header.not-send {
   grid-template-columns: auto 1fr;
+  position: relative;
 }
 
 @media (max-width: 767px) {
@@ -420,31 +416,13 @@ onBeforeUnmount(() => {
 }
 
 .writer-box {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 5px;
+  display: none;
 
-  .writer {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    color: #ffffff;
-    background: linear-gradient(135deg, #1890ff, #3a80dd);
-    transition: all 0.3s ease;
+  @media (max-width: 767px) {
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    .writer-text {
-      margin-left: 15px;
-      font-size: 14px;
-      font-weight: bold;;
-    }
-  }
-
-  @media (max-width: 767px) {
     margin-left: 0;
     flex-shrink: 0;
 
@@ -456,6 +434,9 @@ onBeforeUnmount(() => {
       border: 1px solid var(--el-color-primary);
       color: var(--el-color-white);
       background: var(--el-color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 }
