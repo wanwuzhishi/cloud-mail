@@ -10,16 +10,20 @@
       </div>
     </div>
     <email-search
-      v-if="route.meta.name === 'email'"
+      v-if="showInboxSearch"
       :store="emailStore"
       :search-options="inboxSearchOptions"
       :class="{ 'account-show': accountPanelShow }"
+      @search="returnToList('email')"
+      @reset="returnToList('email')"
     />
     <email-search
-      v-else-if="route.meta.name === 'send'"
+      v-else-if="showSentSearch"
       :store="sendStore"
       :search-options="sentSearchOptions"
       :class="{ 'account-show': accountPanelShow }"
+      @search="returnToList('send')"
+      @reset="returnToList('send')"
     />
     <div class="toolbar">
       <el-dropdown trigger="click" :teleported="false" popper-class="detail-dropdown">
@@ -112,6 +116,21 @@ const sentSearchOptions = computed(() => [
   {label: t('searchRecipientAddress'), type: 'recipientAddress'},
 ])
 const accountPanelShow = computed(() => uiStore.accountShow && hasPerm('account:query'))
+const showInboxSearch = computed(() =>
+  route.meta.name === 'email' || isMailboxDetail('inbox')
+)
+const showSentSearch = computed(() =>
+  route.meta.name === 'send' || isMailboxDetail('sent')
+)
+
+function isMailboxDetail(mailbox) {
+  return route.meta.name === 'content' && route.params.mailbox === mailbox
+}
+
+function returnToList(listName) {
+  if (route.meta.name !== 'content') return
+  router.push({name: listName})
+}
 
 const accountCount = computed(() => {
   return userStore.user.role.accountCount
