@@ -1,7 +1,7 @@
 <template>
   <el-scrollbar class="scroll">
     <div>
-      <div class="title" >
+      <div class="title" :class="{ 'title-display': titleUsesDisplayFont }">
         <img class="logo" :src="logoUrl" alt="" />
         <div>{{settingStore.settings.title}}</div>
       </div>
@@ -75,6 +75,7 @@
 
 <script setup>
 import router from "@/router/index.js";
+import {computed} from "vue";
 import { useRoute } from "vue-router";
 import {Icon} from "@iconify/vue";
 import {useSettingStore} from "@/store/setting.js";
@@ -84,6 +85,7 @@ const settingStore = useSettingStore();
 const uiStore = useUiStore();
 const route = useRoute();
 const logoUrl = `${import.meta.env.BASE_URL}mail.png`
+const titleUsesDisplayFont = computed(() => !/\p{Script=Han}/u.test(settingStore.settings.title || ''))
 
 function openCompose() {
   uiStore.writerRef.open()
@@ -107,9 +109,8 @@ function openCompose() {
   border-radius: 6px;
   display: flex;
   position: relative;
-  font-size: 22px;
-  font-family: "BAHAMASB", Inter, "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  font-weight: normal;
+  font-size: 18px;
+  font-weight: 600;
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
@@ -141,6 +142,11 @@ function openCompose() {
 
 }
 
+.title.title-display {
+  font-family: "BAHAMASB", Inter, "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 22px;
+  font-weight: normal;
+}
 
 .compose-bar {
   display: flex;
@@ -164,11 +170,15 @@ function openCompose() {
   &:hover {
     background: #1064c0;
   }
+
+  @media (max-width: 767px) {
+    display: none;
+  }
 }
 
 .manage-title {
   margin-top: 12px;
-  padding-left: 22px;
+  padding-left: 20px;
   color: #fff;
 }
 
