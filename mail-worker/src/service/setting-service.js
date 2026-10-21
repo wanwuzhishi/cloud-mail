@@ -33,7 +33,7 @@ const settingService = {
 			throw new BizError('数据库未初始化 Database not initialized.');
 		}
 
-		let domainList = JSON.parse(c.env.domain);
+		let domainList = c.env.domain;
 
 		if (typeof domainList === 'string') {
 			try {
