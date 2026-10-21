@@ -1,5 +1,5 @@
 <template>
-  <div class="header" :class="!hasPerm('email:send') ? 'not-send' : ''">
+  <div class="header" :class="{ 'not-send': !hasPerm('email:send') }">
     <div class="header-btn">
       <hanburger @click="changeAside"></hanburger>
       <span class="breadcrumb-item">{{ $t(route.meta.title) }}</span>
@@ -9,6 +9,18 @@
         <Icon icon="material-symbols:edit-outline-sharp" width="22" height="22"/>
       </div>
     </div>
+    <email-search
+      v-if="route.meta.name === 'email'"
+      :store="emailStore"
+      :search-options="inboxSearchOptions"
+      :class="{ 'account-show': accountPanelShow }"
+    />
+    <email-search
+      v-else-if="route.meta.name === 'send'"
+      :store="sendStore"
+      :search-options="sentSearchOptions"
+      :class="{ 'account-show': accountPanelShow }"
+    />
     <div class="toolbar">
       <div v-if="uiStore.dark" class="sun-icon icon-item" @click="openDark($event)">
         <Icon icon="mingcute:sun-fill"/>
@@ -85,15 +97,32 @@ import {useSettingStore} from "@/store/setting.js";
 import {hasPerm} from "@/perm/perm.js"
 import {useI18n} from "vue-i18n";
 import {setExtend} from "@/utils/day.js"
+import emailSearch from '@/components/email-search/index.vue'
+import {useEmailStore} from '@/store/email.js'
+import {useSendStore} from '@/store/send.js'
 
 const {t} = useI18n();
 const route = useRoute();
 const settingStore = useSettingStore();
 const userStore = useUserStore();
 const uiStore = useUiStore();
+const emailStore = useEmailStore()
+const sendStore = useSendStore()
 const logoutLoading = ref(false)
 const userInfoShow = ref(false)
 const userinfoRef = ref({})
+const inboxSearchOptions = computed(() => [
+  {label: t('titleDesc'), type: 'subject'},
+  {label: t('blackContentDesc'), type: 'content'},
+  {label: t('sender'), type: 'sender'},
+  {label: t('searchSenderAddress'), type: 'senderAddress'},
+])
+const sentSearchOptions = computed(() => [
+  {label: t('titleDesc'), type: 'subject'},
+  {label: t('blackContentDesc'), type: 'content'},
+  {label: t('searchRecipientAddress'), type: 'recipientAddress'},
+])
+const accountPanelShow = computed(() => uiStore.accountShow && hasPerm('account:query'))
 
 const accountCount = computed(() => {
   return userStore.user.role.accountCount
@@ -362,6 +391,7 @@ function formatName(email) {
   height: 100%;
   gap: 10px;
   grid-template-columns: auto auto 1fr;
+  position: relative;
 }
 
 .header.not-send {

@@ -58,6 +58,14 @@ watch(() => accountStore.currentAccountId, () => {
   scroll.value.refreshList();
 })
 
+watch(
+  () => emailStore.searchParams,
+  () => {
+    scroll.value.refreshList()
+  },
+  {deep: true}
+)
+
 function changeTimeSort() {
   params.timeSort = params.timeSort ? 0 : 1
   scroll.value.refreshList();
@@ -82,6 +90,11 @@ async function latest() {
 
     if (route.name !== 'email') {
       continue;
+    }
+
+    const searchParams = emailStore.searchParams
+    if (searchParams.text || searchParams.startDate || searchParams.endDate) {
+      continue
     }
 
     const latestId = scroll.value.latestEmail?.emailId
@@ -143,7 +156,7 @@ function getEmailList(emailId, size) {
   const accountId =  accountStore.currentAccountId;
   const allReceive = accountStore.currentAccount.allReceive;
   return emailStore.fetchList(full =>
-    emailList(accountId, allReceive, emailId, params.timeSort, size, 0, full)
+    emailList(accountId, allReceive, emailId, params.timeSort, size, 0, full, emailStore.searchParams)
   ).then(data => {
     data.latestEmail.reqAccountId = accountId;
     data.latestEmail.allReceive = allReceive;
