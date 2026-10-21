@@ -26,7 +26,13 @@
       @reset="returnToList('send')"
     />
     <div class="toolbar">
-      <el-dropdown trigger="click" :teleported="false" popper-class="detail-dropdown">
+      <el-dropdown
+        ref="userDropdownRef"
+        trigger="click"
+        :teleported="false"
+        popper-class="detail-dropdown"
+        @visible-change="userCardVisible = $event"
+      >
         <div class="avatar">
           <div class="avatar-text">
             <div>{{ formatName(userStore.user.email) }}</div>
@@ -87,7 +93,7 @@ import {Icon} from "@iconify/vue";
 import {useUiStore} from "@/store/ui.js";
 import {useUserStore} from "@/store/user.js";
 import {useRoute} from "vue-router";
-import {computed, ref} from "vue";
+import {computed, onBeforeUnmount, onMounted, ref} from "vue";
 import {useSettingStore} from "@/store/setting.js";
 import {hasPerm} from "@/perm/perm.js"
 import {useI18n} from "vue-i18n";
@@ -104,6 +110,10 @@ const uiStore = useUiStore();
 const emailStore = useEmailStore()
 const sendStore = useSendStore()
 const logoutLoading = ref(false)
+const userDropdownRef = ref(null)
+const userCardVisible = ref(false)
+const outsidePointerEvents = ['mousedown', 'pointerup', 'mouseup', 'click', 'pointercancel']
+let blockOutsideClick = false
 const inboxSearchOptions = computed(() => [
   {label: t('titleDesc'), type: 'subject'},
   {label: t('searchSummaryContent'), type: 'content'},
@@ -237,6 +247,47 @@ function clickLogout() {
 function formatName(email) {
   return email[0]?.toUpperCase() || ''
 }
+
+function isInsideUserCard(target) {
+  const element = target instanceof Element ? target : target?.parentElement
+  if (!(element instanceof Element)) return false
+  if (userDropdownRef.value?.$el?.contains(element)) return true
+  return !!element.closest('.detail-dropdown')
+}
+
+function handleUserCardPointerDown(event) {
+  blockOutsideClick = userCardVisible.value && !isInsideUserCard(event.target)
+  if (!blockOutsideClick) return
+
+  event.preventDefault()
+  event.stopPropagation()
+  userDropdownRef.value?.handleClose()
+}
+
+function handleUserCardPointerEvent(event) {
+  if (!blockOutsideClick) return
+  event.preventDefault()
+  event.stopPropagation()
+  if (event.type === 'pointerup' || event.type === 'pointercancel') {
+    setTimeout(() => {
+      blockOutsideClick = false
+    })
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('pointerdown', handleUserCardPointerDown, true)
+  outsidePointerEvents.forEach(type => {
+    document.addEventListener(type, handleUserCardPointerEvent, true)
+  })
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('pointerdown', handleUserCardPointerDown, true)
+  outsidePointerEvents.forEach(type => {
+    document.removeEventListener(type, handleUserCardPointerEvent, true)
+  })
+})
 
 </script>
 <style>
