@@ -213,6 +213,44 @@ const emailService = {
 		if (withCursor && emailId) {
 			conditions.push(timeSort ? gt(email.emailId, emailId) : lt(email.emailId, emailId));
 		}
+
+		if (text?.trim() && searchType) {
+			const searchText = `%${text.trim()}%`;
+
+			if (searchType === 'subject') {
+				conditions.push(sql`${email.subject} COLLATE NOCASE LIKE ${searchText}`);
+			}
+
+			if (searchType === 'content') {
+				conditions.push(
+					or(
+						sql`${email.text} COLLATE NOCASE LIKE ${searchText}`,
+						sql`${email.content} COLLATE NOCASE LIKE ${searchText}`,
+					)
+				);
+			}
+
+			if (searchType === 'sender') {
+				conditions.push(sql`${email.name} COLLATE NOCASE LIKE ${searchText}`);
+			}
+
+			if (searchType === 'senderAddress') {
+				conditions.push(sql`${email.sendEmail} COLLATE NOCASE LIKE ${searchText}`);
+			}
+
+			if (searchType === 'recipientAddress') {
+				conditions.push(sql`${email.toEmail} COLLATE NOCASE LIKE ${searchText}`);
+			}
+		}
+
+		if (startDate) {
+			conditions.push(gte(email.createTime, startDate));
+		}
+
+		if (endDate) {
+			conditions.push(lte(email.createTime, endDate));
+		}
+
 		return conditions;
 	},
 
@@ -258,43 +296,6 @@ const emailService = {
 
 		if (withCursor && emailId) {
 			conditions.push(timeSort ? gt(email.emailId, emailId) : lt(email.emailId, emailId));
-		}
-
-		if (text?.trim() && searchType) {
-			const searchText = `%${text.trim()}%`;
-
-			if (searchType === 'subject') {
-				conditions.push(sql`${email.subject} COLLATE NOCASE LIKE ${searchText}`);
-			}
-
-			if (searchType === 'content') {
-				conditions.push(
-					or(
-						sql`${email.text} COLLATE NOCASE LIKE ${searchText}`,
-						sql`${email.content} COLLATE NOCASE LIKE ${searchText}`,
-					)
-				);
-			}
-
-			if (searchType === 'sender') {
-				conditions.push(sql`${email.name} COLLATE NOCASE LIKE ${searchText}`);
-			}
-
-			if (searchType === 'senderAddress') {
-				conditions.push(sql`${email.sendEmail} COLLATE NOCASE LIKE ${searchText}`);
-			}
-
-			if (searchType === 'recipientAddress') {
-				conditions.push(sql`${email.toEmail} COLLATE NOCASE LIKE ${searchText}`);
-			}
-		}
-
-		if (startDate) {
-			conditions.push(gte(email.createTime, startDate));
-		}
-
-		if (endDate) {
-			conditions.push(lte(email.createTime, endDate));
 		}
 
 		return conditions;

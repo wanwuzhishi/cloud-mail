@@ -2,9 +2,22 @@
   <div ref="searchRef" class="email-search">
     <div class="search-placeholder" @click="openSearch">
       <Icon icon="iconoir:search" width="20" height="20"/>
-      <span style="font-size: 15px">{{ t('searchMail') }}</span>
+      <span class="search-placeholder-text" :class="{ 'has-search-text': savedSearchSummary }" :title="savedSearchSummary">
+        {{ savedSearchSummary || t('searchMail') }}
+      </span>
     </div>
-    <Transition name="search-panel-fade" @after-enter="focusInput">
+    <el-button
+      class="mobile-search-button"
+      size="default"
+      :aria-label="t('searchMail')"
+      :aria-expanded="visible"
+      @click="openSearch"
+    >
+      <el-icon :size="20">
+        <Icon icon="iconoir:search"/>
+      </el-icon>
+    </el-button>
+    <Transition name="search-panel-fade" @after-enter="focusInputOnDesktop">
       <div v-if="visible" class="search-panel-shell" @click.stop>
         <el-card class="search-panel" shadow="always">
           <div class="search-input">
@@ -31,6 +44,7 @@
                 <el-date-picker
                   v-model="startDate"
                   type="date"
+                  :editable="false"
                   value-format="YYYY-MM-DD"
                   :placeholder="t('searchStartDate')"
                 />
@@ -40,8 +54,10 @@
                 <el-date-picker
                   v-model="endDate"
                   type="date"
+                  :editable="false"
                   value-format="YYYY-MM-DD"
                   :placeholder="t('searchEndDate')"
+                  :disabled-date="disableEndDate"
                 />
               </div>
             </div>
@@ -84,6 +100,30 @@ const visible = ref(false)
 const selectedSearchOption = computed(() =>
   props.searchOptions.find(option => option.type === searchType.value)
 )
+const savedSearchSummary = computed(() => {
+  const params = props.store.searchParams
+  const parts = []
+  const text = params.text?.trim()
+  const fieldKeys = {
+    subject: 'searchSummarySubject',
+    content: 'searchSummaryContent',
+    sender: 'searchSummarySender',
+    senderAddress: 'searchSummarySenderAddress',
+    recipientAddress: 'searchSummaryRecipientAddress',
+  }
+
+  if (text) {
+    parts.push(`${t(fieldKeys[params.type] || fieldKeys.subject)}:${text}`)
+  }
+  if (params.startDate && params.endDate) {
+    parts.push(`${formatSummaryDate(params.startDate)} ${t('searchSummaryRange')} ${formatSummaryDate(params.endDate)}`)
+  } else if (params.startDate) {
+    parts.push(`${t('searchSummaryAfter')}:${formatSummaryDate(params.startDate)}`)
+  } else if (params.endDate) {
+    parts.push(`${t('searchSummaryBefore')}:${formatSummaryDate(params.endDate)}`)
+  }
+  return parts.join('\u00a0\u00a0')
+})
 const searchPlaceholder = computed(() =>
   t('searchMailBy', {field: selectedSearchOption.value?.label || t('titleDesc')})
 )
@@ -98,6 +138,12 @@ watch(
   {immediate: true}
 )
 
+watch(startDate, value => {
+  if (value && endDate.value && endDate.value < value) {
+    endDate.value = ''
+  }
+})
+
 function openSearch() {
   if (visible.value) {
     closeSearch()
@@ -110,6 +156,19 @@ function openSearch() {
 
 function focusInput() {
   inputRef.value?.focus()
+}
+
+function focusInputOnDesktop() {
+  if (!window.matchMedia('(max-width: 1024px)').matches) {
+    focusInput()
+  }
+}
+
+function disableEndDate(date) {
+  if (!startDate.value) return false
+
+  const start = new Date(`${startDate.value}T00:00:00`)
+  return date < start
 }
 
 function closeSearch() {
@@ -135,6 +194,10 @@ function toLocalSearchDate(dateValue) {
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
+}
+
+function formatSummaryDate(dateValue) {
+  return toLocalSearchDate(dateValue)
 }
 
 function handleDocumentKeydown(event) {
@@ -221,9 +284,12 @@ onBeforeUnmount(() => {
   left: -1;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 2000;
+  z-index: 10;
   width: min(450px, calc(100% - 20px));
   height: 36px;
+  @media (max-width: 1080px) {
+    width: min(400px, calc(100% - 20px));
+  }
 }
 
 @media (min-width: 768px) {
@@ -251,6 +317,52 @@ onBeforeUnmount(() => {
   cursor: text;
   position: relative;
   z-index: 0;
+}
+
+.search-placeholder-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 15px;
+}
+
+.search-placeholder-text.has-search-text {
+  color: var(--el-text-color-primary);
+}
+
+.mobile-search-button {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .email-search {
+    position: static;
+    transform: none;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
+  .search-placeholder {
+    display: none;
+  }
+
+  .mobile-search-button {
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 6px;
+  }
+
+  .email-search .search-panel-shell {
+    top: calc(100% + 8px);
+    left: 50%;
+    right: auto;
+    width: min(450px, calc(100vw - 30px));
+    translate: -50% 0;
+  }
 }
 
 .search-panel-shell {
