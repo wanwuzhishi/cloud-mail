@@ -167,10 +167,7 @@ const loginService = {
 			throw new BizError(t('noRegKeyCount'));
 		}
 
-		const today = toUtc().tz('Asia/Shanghai').startOf('day')
-		const expireTime = toUtc(regKeyRow.expireTime).tz('Asia/Shanghai').startOf('day');
-
-		if (expireTime.isBefore(today)) {
+		if (!toUtc(regKeyRow.expireTime).isAfter(toUtc())) {
 			throw new BizError(t('regKeyExpire'));
 		}
 
@@ -189,10 +186,7 @@ const loginService = {
 			return null
 		}
 
-		const today = toUtc().tz('Asia/Shanghai').startOf('day')
-		const expireTime = toUtc(regKeyRow.expireTime).tz('Asia/Shanghai').startOf('day');
-
-		if (regKeyRow.count <= 0 || expireTime.isBefore(today)) {
+		if (regKeyRow.count <= 0 || !toUtc(regKeyRow.expireTime).isAfter(toUtc())) {
 			return null
 		}
 
