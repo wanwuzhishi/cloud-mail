@@ -58,10 +58,10 @@
 
                 <div class="email-sender" :style=" (showStatus ? 'gap: 10px;' : '') + ((item.unread === EmailUnreadEnum.UNREAD && showUnread)  ? 'font-weight: bold' : '')">
                   <div class="email-status" v-if="showStatus">
-                    <el-tooltip effect="dark" :content="item.statusIcon.content">
+                    <el-tooltip v-if="item.statusIcon" effect="dark" :content="item.statusIcon.content">
                       <Icon :icon="item.statusIcon.icon" :style="`color: ${item.statusIcon.color}`" width="20" height="20"/>
                     </el-tooltip>
-                    <div class="del-status" v-if="item.isDel">
+                    <div class="del-status" v-if="item.isDel && item.status !== 6">
                       <el-tooltip effect="dark" :content="item.isDelContent">
                         <Icon class="icon" icon="mdi:email-remove" width="20" height="20"/>
                       </el-tooltip>
@@ -883,6 +883,7 @@ function handleList(list) {
       8: { icon: 'bi:send-x-fill',         color: '#F56C6C', content: t('bounced') },
       4: { icon: 'bi:send-exclamation-fill', color: '#FBBD08', content: t('complained') },
       5: { icon: 'bi:send-arrow-up-fill',  color: '#FBBD08', content: t('delayed') },
+      6: { icon: 'mdi:email-lock', color: '#909399', content: t('saving') },
       7: { icon: 'ic:round-mark-email-read', color: '#FBBD08', content: t('noRecipient') },
     };
 

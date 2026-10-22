@@ -285,6 +285,7 @@ const zh = {
     delEmailsConfirm: '确认删除选中的邮件吗？',
     delOneEmailConfirm: '确认删除这个邮件吗？',
     sending: '邮件正在发送中',
+    saving: '邮件正在保存中',
     sendingErrorMsg: '邮件正在发送中',
     networkErrorMsg: '网络错误，请检查网络连接',
     timeoutErrorMsg: '请求超时，请稍后重试',

@@ -285,6 +285,7 @@ const en = {
     delEmailsConfirm: 'Confirm deletion of selected emails?',
     delOneEmailConfirm: 'Confirm deletion of this email?',
     sending: 'Sending email...',
+    saving: 'Saving email...',
     sendingErrorMsg: 'Sending in progress',
     networkErrorMsg: 'Network error. Check your internet',
     timeoutErrorMsg: 'Timeout. Try again later',
