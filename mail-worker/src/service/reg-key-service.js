@@ -1,6 +1,6 @@
 import orm from '../entity/orm';
 import regKey from '../entity/reg-key';
-import { inArray, like, eq, desc, sql, or } from 'drizzle-orm';
+import { inArray, like, eq, desc, sql, or, and, gt } from 'drizzle-orm';
 import roleService from './role-service';
 import BizError from '../error/biz-error';
 import { toUtc } from '../utils/date-uitil';
@@ -89,12 +89,19 @@ const regKeyService = {
 		return regKeyList;
 	},
 
-	async reduceCount(c, code, count) {
-		await orm(c).update(regKey).set({
-			count: sql`${regKey.count}
-	  -
-	  ${count}`
-		}).where(eq(regKey.code, code)).run();
+	async consumeCount(c, code) {
+		const rows = await orm(c).update(regKey)
+			.set({ count: sql`${regKey.count} - 1` })
+			.where(and(eq(regKey.code, code), gt(regKey.count, 0)))
+			.returning({ regKeyId: regKey.regKeyId });
+		return rows.length > 0;
+	},
+
+	async restoreCount(c, code) {
+		await orm(c).update(regKey)
+			.set({ count: sql`${regKey.count} + 1` })
+			.where(eq(regKey.code, code))
+			.run();
 	},
 
 	async history(c, params) {
