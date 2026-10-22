@@ -91,6 +91,8 @@ const en = {
     unknown: 'Unknown',
     changePerm: 'Change role',
     from: 'From',
+    sentVia: 'via {email}',
+    sentViaTag: 'Via',
     subject: 'Subject',
     sender: 'Sender',
     user: 'User',

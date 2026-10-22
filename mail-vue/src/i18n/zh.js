@@ -91,6 +91,8 @@ const zh = {
     unknown: '未知',
     changePerm: '修改权限',
     from: '发件人',
+    sentVia: '由 {email} 代发',
+    sentViaTag: '代发',
     subject: '主题',
     sender: '发件人',
     user: '用户',
