@@ -71,7 +71,7 @@
                   <span class="name">
                     <span>
                       <div class="unread" v-if="isMobile && (item.unread === EmailUnreadEnum.UNREAD && showUnread) "/>
-                      <slot name="name" :email="item"> {{ item.name }}</slot>
+                      <slot name="name" :email="item"><span v-html="renderHighlight(item.name)"></span></slot>
                     </span>
                     <span>
                       <Icon v-if="item.isStar" icon="fluent-color:star-16" width="18" height="18"/>
@@ -86,24 +86,24 @@
                       <span v-if="item.code" class="code-tag" @click.stop="copyCode(item.code)">[{{ t('codeLabel') }}{{ item.code }}]</span>
                       <span class="subject-text">
                         <slot name="subject" :email="item" >
-                          {{ item.subject || '\u200B' }}
+                          <span v-html="renderHighlight(item.subject)"></span>
                         </slot>
                       </span>
                     </span>
-                    <span class="email-content">{{ item.listText || item.text || '\u200B' }}</span>
+                    <span class="email-content" v-html="renderHighlight(item.listText || item.text)"></span>
                   </div>
                   <div class="user-info" v-if="showUserInfo">
                     <div class="user">
                       <span>
                         <Icon icon="mynaui:user" width="20" height="20"/>
                       </span>
-                      <span>{{ item.userEmail }}</span>
+                      <span v-html="renderHighlight(item.userEmail)"></span>
                     </div>
                     <div class="account">
                       <span>
                         <Icon icon="mdi-light:email" width="20" height="20"/>
                       </span>
-                      <span>{{ item.type === 0 ? item.toEmail : item.sendEmail }}</span>
+                      <span v-html="renderHighlight(item.type === 0 ? item.toEmail : item.sendEmail)"></span>
                     </div>
                   </div>
                 </div>
@@ -295,10 +295,15 @@ const props = defineProps({
   showUnread: {
     type: Boolean,
     default: false
+  },
+  highlightText: {
+    type: String,
+    default: ''
   }
 })
 
 const emit = defineEmits(['jump', 'refresh-before', 'delete-draft', 'right-search'])
+
 const {t} = useI18n()
 const settingStore = useSettingStore()
 const uiStore = useUiStore();
@@ -906,8 +911,42 @@ function loadData() {
   getEmailList()
 }
 
+
+function escapeHtml(value) {
+  return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+}
+
+function renderHighlight(value) {
+  const text = value == null ? '' : String(value)
+  if (!text) return '\u200B'
+  const keyword = props.highlightText?.trim()
+  if (!keyword) return escapeHtml(text)
+  const pattern = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')
+  let html = ''
+  let lastIndex = 0
+  for (const match of text.matchAll(pattern)) {
+    const index = match.index ?? 0
+    html += escapeHtml(text.slice(lastIndex, index))
+    html += `<mark class="search-hit">${escapeHtml(match[0])}</mark>`
+    lastIndex = index + match[0].length
+  }
+  html += escapeHtml(text.slice(lastIndex))
+  return html
+}
+
 </script>
 <style lang="scss" scoped>
+:deep(.search-hit) {
+  background-color: var(--search-hit-background);
+  color: inherit;
+  padding: 0;
+  border-radius: 2px;
+}
+
 
 .email-container {
   display: grid;
