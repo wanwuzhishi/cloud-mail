@@ -71,7 +71,7 @@
                   <span class="name">
                     <span>
                       <div class="unread" v-if="isMobile && (item.unread === EmailUnreadEnum.UNREAD && showUnread) "/>
-                      <slot name="name" :email="item"><span v-html="renderHighlight(item.name)"></span></slot>
+                      <slot name="name" :email="item"><span v-html="item.nameHtml"></span></slot>
                     </span>
                     <span>
                       <Icon v-if="item.isStar" icon="fluent-color:star-16" width="18" height="18"/>
@@ -86,24 +86,24 @@
                       <span v-if="item.code" class="code-tag" @click.stop="copyCode(item.code)">[{{ t('codeLabel') }}{{ item.code }}]</span>
                       <span class="subject-text">
                         <slot name="subject" :email="item" >
-                          <span v-html="renderHighlight(item.subject)"></span>
+                          <span v-html="item.subjectHtml"></span>
                         </slot>
                       </span>
                     </span>
-                    <span class="email-content" v-html="renderHighlight(item.listText || item.text)"></span>
+                    <span class="email-content" v-html="item.listHtml"></span>
                   </div>
                   <div class="user-info" v-if="showUserInfo">
                     <div class="user">
                       <span>
                         <Icon icon="mynaui:user" width="20" height="20"/>
                       </span>
-                      <span v-html="renderHighlight(item.userEmail)"></span>
+                      <span v-html="item.userEmailHtml"></span>
                     </div>
                     <div class="account">
                       <span>
                         <Icon icon="mdi-light:email" width="20" height="20"/>
                       </span>
-                      <span v-html="renderHighlight(item.type === 0 ? item.toEmail : item.sendEmail)"></span>
+                      <span v-html="item.accountEmailHtml"></span>
                     </div>
                   </div>
                 </div>
@@ -891,8 +891,21 @@ function handleList(list) {
       email.isDelContent = t('selectDeleted');
     }
     email.statusIcon = statusIconMap[email.status];
+    applyHighlight(email);
   })
 }
+
+function applyHighlight(email) {
+  email.nameHtml = renderHighlight(email.name);
+  email.subjectHtml = renderHighlight(email.subject);
+  email.listHtml = renderHighlight(email.listText || email.text);
+  email.userEmailHtml = renderHighlight(email.userEmail);
+  email.accountEmailHtml = renderHighlight(email.type === 0 ? email.toEmail : email.sendEmail);
+}
+
+watch(() => props.highlightText, () => {
+  emailList.forEach(applyHighlight);
+})
 
 function refresh() {
   emit('refresh-before')
